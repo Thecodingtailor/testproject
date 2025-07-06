@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Headline A/B Tester</title>
+    <!-- Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic Reset & Variables for Light/Dark Mode */
+        :root {
+            --background-color-light: #f4f7f6;
+            --text-color-light: #333;
+            --card-background-light: #ffffff;
+            --border-color-light: #e0e0e0;
+            --shadow-color-light: rgba(0, 0, 0, 0.08);
+            --button-background-light: #4CAF50;
+            --button-text-light: #ffffff;
+            --button-hover-light: #45a049;
+            --input-border-light: #ccc;
+            --input-focus-border-light: #66afe9;
+            --positive-color: #28a745;
+            --negative-color: #dc3545;
+            --neutral-color: #6c757d;
+            --highlight-color: #d4edda; /* Light green for winner */
+            --copy-button-bg: #007bff;
+            --copy-button-hover: #0056b3;
+            --ai-button-bg: #673AB7; /* Deep Purple */
+            --ai-button-hover: #5E35B1;
+            --toggle-bg: #ccc;
+            --toggle-circle: #fff;
+            --modal-bg: rgba(0, 0, 0, 0.6);
+            --modal-content-bg: #ffffff;
+            --modal-border: #e0e0e0;
+            --progress-bar-bg: #e9ecef;
+            --loading-spinner-color: #4CAF50;
+
+            /* Progress Bar Colors */
+            --progress-red: #dc3545;
+            --progress-yellow: #ffc107;
+            --progress-green: #28a745;
+        }
+
+        body.dark-mode {
+            --background-color-light: #2c2c2c;
+            --text-color-light: #e0e0e0;
+            --card-background-light: #3a3a3a;
+            --border-color-light: #555555;
+            --shadow-color-light: rgba(0, 0, 0, 0.3);
+            --button-background-light: #5cb85c;
+            --button-text-light: #ffffff;
+            --button-hover-light: #4cae4c;
+            --input-border-light: #666;
+            --input-focus-border-light: #88bbff;
+            --highlight-color: #3d5a40; /* Darker green for winner */
+            --copy-button-bg: #4a90e2;
+            --copy-button-hover: #357bd8;
+            --ai-button-bg: #8E24AA; /* Darker Purple */
+            --ai-button-hover: #7B1FA2;
+            --toggle-bg: #888;
+            --toggle-circle: #fff;
+            --modal-content-bg: #444444;
+            --modal-border: #666666;
+            --progress-bar-bg: #555;
+            --loading-spinner-color: #5cb85c;
+
+            /* Progress Bar Colors for Dark Mode */
+            --progress-red: #ef5350;
+            --progress-yellow: #ffeb3b;
+            --progress-green: #66bb6a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color-light);
+            color: var(--text-color-light);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        h1 {
+            color: var(--text-color-light);
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap; /* Allows cards to wrap on smaller screens */
+            gap: 25px;
+            width: 100%;
+            max-width: 1200px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .headline-card {
+            background-color: var(--card-background-light);
+            border: 1px solid var(--border-color-light);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px var(--shadow-color-light);
+            padding: 25px;
+            flex: 1; /* Allows cards to grow and shrink */
+            min-width: 300px; /* Minimum width before wrapping */
+            max-width: 580px; /* Max width for desktop layout */
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+            position: relative; /* For the score badge */
+        }
+
+        .headline-card.winner {
+            border: 2px solid var(--positive-color);
+            background-color: var(--highlight-color);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .total-score-badge {
+            position: absolute;
+            top: -15px; /* Adjust to position above the card */
+            right: 20px;
+            background-color: var(--button-background-light);
+            color: var(--button-text-light);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 700;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 10; /* Ensure it's above other elements */
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--text-color-light);
+            font-weight: 600;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            margin-bottom: 10px; /* Reduced margin to fit buttons */
+            border: 1px solid var(--input-border-light);
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            color: var(--text-color-light);
+            background-color: var(--background-color-light);
+            resize: vertical;
+            transition: border-color 0.3s, background-color 0.3s;
+            max-height: 200px; /* Limit max height for better UX */
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--input-focus-border-light);
+            box-shadow: 0 0 0 3px rgba(102, 175, 233, 0.25);
+        }
+
+        .headline-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .copy-button, .ai-button {
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border: none;
+            color: var(--button-text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .copy-button {
+            background-color: var(--copy-button-bg);
+        }
+        .copy-button:hover {
+            background-color: var(--copy-button-hover);
+        }
+
+        .ai-button {
+            background-color: var(--ai-button-bg);
+            flex-grow: 1; /* Allow AI button to take more space */
+        }
+        .ai-button:hover {
+            background-color: var(--ai-button-hover);
+        }
+
+        .analysis-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--border-color-light);
+        }
+
+        .analysis-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 15px;
+        }
+
+        .analysis-label {
+            font-weight: 600;
+            color: var(--text-color-light);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .analysis-value {
+            font-weight: 400;
+            color: var(--text-color-light);
+        }
+
+        .sentiment-positive { color: var(--positive-color); font-weight: 700; }
+        .sentiment-negative { color: var(--negative-color); font-weight: 700; }
+        .sentiment-neutral { color: var(--neutral-color); font-weight: 700; }
+
+        .progress-bar-container {
+            flex-grow: 1;
+            height: 12px; /* Taller for better visibility */
+            background-color: var(--progress-bar-bg);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-left: 10px; /* Space between label and bar */
+            display: flex; /* To center percentage text if added */
+            align-items: center;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.3s ease-out, background-color 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end; /* Align text to the right */
+            padding-right: 5px;
+            font-size: 0.8em;
+            color: var(--button-text-light); /* White text on colored bar */
+            font-weight: 600;
+        }
+
+        /* Tooltip styles */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position above the text */
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8em;
+        }
+
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+
+        .overall-score-box {
+            background-color: var(--button-background-light);
+            color: var(--button-text-light);
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.1em;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+
+        .cta-button {
+            background-color: var(--button-background-light);
+            color: var(--button-text-light);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 100%;
+        }
+
+        .cta-button:hover {
+            background-color: var(--button-hover-light);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .export-button {
+            background-color: #f0ad4e; /* Orange */
+            color: #ffffff;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 100%;
+        }
+        .export-button:hover {
+            background-color: #ec971f;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .mode-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--toggle-bg);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--toggle-circle);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--button-background-light);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Message Box for copy to clipboard */
+        .message-box {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 1000;
+        }
+
+        .message-box.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1001; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: var(--modal-bg); /* Black w/ opacity */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--modal-content-bg);
+            margin: auto;
+            padding: 30px;
+            border: 1px solid var(--modal-border);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+            color: var(--text-color-light);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .close-button {
+            color: var(--text-color-light);
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #aaa;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-title {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            color: var(--text-color-light);
+        }
+
+        .ai-suggestion-item {
+            background-color: var(--background-color-light);
+            border: 1px solid var(--border-color-light);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .ai-suggestion-text {
+            font-size: 1.1em;
+            font-weight: 500;
+            word-wrap: break-word;
+        }
+
+        .ai-suggestion-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .ai-suggestion-actions button {
+            background-color: var(--copy-button-bg);
+            color: var(--button-text-light);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: background-color 0.3s;
+        }
+
+        .ai-suggestion-actions button:hover {
+            background-color: var(--copy-button-hover);
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid var(--loading-spinner-color); /* Green */
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-left: 10px;
+            font-size: 0.9em;
+            color: var(--text-color-light);
+        }
+
+        .insight-box {
+            background-color: var(--card-background-light);
+            border: 1px solid var(--border-color-light);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: 600;
+            box-shadow: 0 4px 10px var(--shadow-color-light);
+            color: var(--text-color-light);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column; /* Stack cards vertically on smaller screens */
+                align-items: center;
+            }
+
+            .headline-card {
+                width: 95%; /* Take up more width on mobile */
+                max-width: 450px; /* Limit max width for very large phones/small tablets */
+            }
+
+            .cta-button, .export-button {
+                font-size: 1.1em;
+                padding: 12px 25px;
+            }
+
+            .mode-toggle {
+                justify-content: center;
+                margin-bottom: 15px;
+            }
+
+            .headline-actions {
+                flex-direction: column;
+            }
+
+            .copy-button, .ai-button {
+                width: 100%;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .modal-title {
+                font-size: 1.5em;
+            }
+
+            .total-score-badge {
+                top: -10px;
+                right: 10px;
+                padding: 6px 12px;
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mode-toggle">
+        <span>Light Mode</span>
+        <label class="switch">
+            <input type="checkbox" id="darkModeToggle">
+            <span class="slider"></span>
+        </label>
+        <span>Dark Mode</span>
+    </div>
+
+    <h1>Headline A/B Tester</h1>
+
+    <div class="container">
+        <div class="headline-card" id="headlineA-card">
+            <div class="total-score-badge" id="totalScoreBadgeA">0/100</div>
+            <h2>Headline A</h2>
+            <textarea id="headlineA" placeholder="e.g., 10 Ways to Grow Your Email List" maxlength="120"></textarea>
+            <div class="headline-actions">
+                <button class="copy-button" data-headline-id="headlineA">Copy Headline A</button>
+                <button class="ai-button" data-headline-id="headlineA">✨ Improve with AI</button>
+            </div>
+            <div class="analysis-section" id="analysisSectionA">
+                <!-- Analysis items will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <div class="headline-card" id="headlineB-card">
+            <div class="total-score-badge" id="totalScoreBadgeB">0/100</div>
+            <h2>Headline B</h2>
+            <textarea id="headlineB" placeholder="e.g., The Secret to Doubling Your Subscribers" maxlength="120"></textarea>
+            <div class="headline-actions">
+                <button class="copy-button" data-headline-id="headlineB">Copy Headline B</button>
+                <button class="ai-button" data-headline-id="headlineB">✨ Improve with AI</button>
+            </div>
+            <div class="analysis-section" id="analysisSectionB">
+                <!-- Analysis items will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="button-group">
+        <button class="cta-button" id="whichOneWinsBtn">Which One Wins?</button>
+        <div id="winnerInsight" class="insight-box" style="display: none;"></div>
+        <button class="export-button" id="exportResultsBtn">Export All Results</button>
+    </div>
+
+    <div id="messageBox" class="message-box"></div>
+
+    <!-- AI Suggestions Modal -->
+    <div id="aiSuggestionsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3 class="modal-title">AI Headline Suggestions</h3>
+            <div id="aiSuggestionsList">
+                <!-- Suggestions will be loaded here -->
+                <div style="text-align: center; padding: 20px;" id="aiLoadingIndicator">
+                    <div class="loading-spinner"></div>
+                    <span class="loading-text">Generating suggestions...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DOM Element References ---
+        const headlineAInput = document.getElementById('headlineA');
+        const headlineBInput = document.getElementById('headlineB');
+
+        const headlineACard = document.getElementById('headlineA-card');
+        const headlineBCard = document.getElementById('headlineB-card');
+        const totalScoreBadgeA = document.getElementById('totalScoreBadgeA');
+        const totalScoreBadgeB = document.getElementById('totalScoreBadgeB');
+        const analysisSectionA = document.getElementById('analysisSectionA');
+        const analysisSectionB = document.getElementById('analysisSectionB');
+
+        const whichOneWinsBtn = document.getElementById('whichOneWinsBtn');
+        const exportResultsBtn = document.getElementById('exportResultsBtn');
+        const copyButtons = document.querySelectorAll('.copy-button');
+        const aiButtons = document.querySelectorAll('.ai-button');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const messageBox = document.getElementById('messageBox');
+
+        const aiSuggestionsModal = document.getElementById('aiSuggestionsModal');
+        const closeButton = aiSuggestionsModal.querySelector('.close-button');
+        const aiSuggestionsList = document.getElementById('aiSuggestionsList');
+        const aiLoadingIndicator = document.getElementById('aiLoadingIndicator');
+        const winnerInsight = document.getElementById('winnerInsight');
+
+        // --- Configuration for Analysis ---
+        const POWER_WORDS = [
+            'free', 'ultimate', 'proven', 'secrets', 'now', 'boost', 'discover', 'unleash',
+            'master', 'transform', 'maximize', 'ultimate', 'powerful', 'guaranteed', 'instant',
+            'exclusive', 'limited', 'shocking', 'amazing', 'incredible', 'breakthrough', 'easy',
+            'simple', 'quick', 'fast', 'new', 'revealed', 'hack', 'guide', 'top', 'best', 'must-have'
+        ];
+
+        const CURIOSITY_TRIGGERS = [
+            'secret', 'hidden', 'uncover', 'reveal', 'mystery', 'what happens', 'you won\'t believe',
+            'why', 'how to', 'little known', 'confessions of', 'forbidden', 'surprising', 'unexpected'
+        ];
+
+        const URGENCY_SCARCITY_TRIGGERS = [
+            'now', 'today', 'limited time', 'hurry', 'don\'t miss', 'last chance', 'act now',
+            'expires', 'deadline', 'final', 'only', 'instantly', 'immediately'
+        ];
+
+        const NEGATIVE_FRAMING_WORDS = [
+            'avoid', 'mistakes', 'fail', 'failure', 'risk', 'warning', 'danger', 'stop', 'never',
+            'wasting', 'lose', 'struggle', 'problem', 'challenge', 'crisis', 'bad', 'difficult'
+        ];
+
+        const PERSONALIZATION_WORDS = ['you', 'your', 'yours', 'we', 'us', 'our'];
+
+        const HIGH_PERFORMING_FORMATS = {
+            'Listicle': /\d+\s(ways|tips|secrets|reasons|things|steps|hacks|lessons)/i,
+            'How-To': /^(how to|how-to)\s/i,
+            'Question': /\?$/,
+            'Case Study': /case study/i,
+            'Problem-Fix': /(problem|challenge|struggle).*?(solve|fix|overcome|solution)/i
+        };
+
+        // --- Helper Functions for Analysis ---
+
+        /**
+         * Calculates the word count of a given text.
+         * @param {string} text - The input string.
+         * @returns {number} - The number of words.
+         */
+        function getWordCount(text) {
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+            return words.length;
+        }
+
+        /**
+         * Calculates the character count of a given text.
+         * @param {string} text - The input string.
+         * @returns {number} - The number of characters.
+         */
+        function getCharCount(text) {
+            return text.length;
+        }
+
+        /**
+         * Counts syllables in a word using a simple heuristic.
+         * This is a basic approximation and not a perfect linguistic analysis.
+         * @param {string} word - The word to count syllables for.
+         * @returns {number} - The estimated syllable count.
+         */
+        function countSyllables(word) {
+            word = word.toLowerCase();
+            if (word.length === 0) return 0;
+            if (word.length <= 3) return 1; // Assume short words have at least one syllable
+
+            let count = 0;
+            const vowels = 'aeiouy';
+            let prevCharIsVowel = false;
+
+            for (let i = 0; i < word.length; i++) {
+                const char = word[i];
+                if (vowels.includes(char)) {
+                    if (!prevCharIsVowel) {
+                        count++;
+                    }
+                    prevCharIsVowel = true;
+                } else {
+                    prevCharIsVowel = false;
+                }
+            }
+
+            // Adjustments for common patterns
+            if (word.endsWith('e') && !word.endsWith('le') && count > 1) {
+                count--; // Silent 'e'
+            }
+            if (word.endsWith('es') || word.endsWith('ed')) {
+                // Common endings that often don't add a syllable
+                if (count > 1 && !vowels.includes(word[word.length - 3])) { // e.g. "likes" vs "cries"
+                    count--;
+                }
+            }
+
+            return Math.max(1, count); // Ensure at least one syllable for non-empty words
+        }
+
+        /**
+         * Calculates the Flesch-Kincaid Grade Level.
+         * Formula: 0.39 * (words / sentences) + 11.8 * (syllables / words) - 15.59
+         * @param {string} text - The input headline.
+         * @returns {string} - The calculated grade level or 'N/A'.
+         */
+        function getFleschKincaidGradeLevel(text) {
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+
+            if (words.length === 0) return 'N/A';
+
+            const totalWords = words.length;
+            const totalSentences = sentences.length === 0 ? 1 : sentences.length; // Assume at least one sentence for a non-empty string
+
+            let totalSyllables = 0;
+            words.forEach(word => {
+                totalSyllables += countSyllables(word);
+            });
+
+            const gradeLevel = 0.39 * (totalWords / totalSentences) + 11.8 * (totalSyllables / totalWords) - 15.59;
+            return Math.max(0, gradeLevel).toFixed(1); // Grade level cannot be negative
+        }
+
+        /**
+         * Performs a simple keyword-based sentiment analysis.
+         * @param {string} text - The input string.
+         * @returns {{sentiment: string, score: number}} - The sentiment (Positive, Neutral, Negative) and a score.
+         */
+        function getSentiment(text) {
+            const lowerText = text.toLowerCase();
+            let positiveScore = 0;
+            let negativeScore = 0;
+
+            const positiveKeywords = ['grow', 'double', 'secret', 'easy', 'best', 'win', 'success', 'amazing', 'boost', 'free', 'new', 'discover', 'unleash', 'master', 'transform', 'maximize', 'ultimate', 'powerful', 'proven', 'guaranteed', 'benefit', 'thrive', 'joy', 'happy', 'delight', 'enjoy', 'celebrate', 'succeed'];
+            const negativeKeywords = ['hard', 'struggle', 'problem', 'failure', 'avoid', 'risk', 'mistakes', 'lose', 'challenge', 'crisis', 'bad', 'difficult', 'trap', 'warning', 'danger'];
+
+            positiveKeywords.forEach(keyword => {
+                if (lowerText.includes(keyword)) {
+                    positiveScore++;
+                }
+            });
+
+            negativeKeywords.forEach(keyword => {
+                if (lowerText.includes(keyword)) {
+                    negativeScore++;
+                }
+            });
+
+            if (positiveScore > negativeScore) {
+                return { sentiment: 'Positive', score: positiveScore - negativeScore };
+            } else if (negativeScore > positiveScore) {
+                return { sentiment: 'Negative', score: positiveScore - negativeScore };
+            } else {
+                return { sentiment: 'Neutral', score: 0 };
+            }
+        }
+
+        /**
+         * Calculates score for Use of Numbers.
+         * @param {string} text - The input headline.
+         * @returns {number} - Score out of 10.
+         */
+        function getUseOfNumbersScore(text) {
+            return /\d/.test(text) ? 10 : 0;
+        }
+
+        /**
+         * Calculates score for Power Words.
+         * @param {string} text - The input headline.
+         * @returns {number} - Score out of 10.
+         */
+        function getPowerWordsScore(text) {
+            const lowerText = text.toLowerCase();
+            let count = 0;
+            POWER_WORDS.forEach(word => {
+                if (lowerText.includes(word)) {
+                    count++;
+                }
+            });
+            // Max 5 power words for full score of 10
+            return Math.min(count / 5, 1) * 10;
+        }
+
+        /**
+         * Calculates score for Curiosity / Open Loops.
+         * @param {string} text - The input headline.
+         * @returns {number} - Score out of 10.
+         */
+        function getCuriosityScore(text) {
+            const lowerText = text.toLowerCase();
+            let count = 0;
+            CURIOSITY_TRIGGERS.forEach(word => {
+                if (lowerText.includes(word)) {
+                    count++;
+                }
+            });
+            // Max 3 curiosity triggers for full score of 10
+            return Math.min(count / 3, 1) * 10;
+        }
+
+        /**
+         * Calculates score for Urgency or Scarcity.
+         * @param {string} text - The input headline.
+         * @returns {number} - Score out of 10.
+         */
+        function getUrgencyScore(text) {
+            const lowerText = text.toLowerCase();
+            let count = 0;
+            URGENCY_SCARCITY_TRIGGERS.forEach(word => {
+                if (lowerText.includes(word)) {
+                    count++;
+                }
+            });
+            // Max 2 urgency triggers for full score of 10
+            return Math.min(count / 2, 1) * 10;
+        }
+
+        /**
+         * Calculates score for Specificity. (Heuristic)
+         * Checks for numbers, explicit benefits, or clear outcomes.
+         * @param {string} text - The input headline.
+         * @returns {number} - Score out of 10.
+         */
+        function getSpecificityScore(text) {
+            let score = 0;
+            // Presence of numbers (already covered by getUseOfNumbersScore, but specific numbers here add to specificity)
+            if (/\d/.test(text)) score += 3;
+            // Words indicating clear benefit/outcome
+            const specificBenefitWords = ['results', 'gain', 'achieve', 'boost', 'increase', 'reduce', 'save', 'master', 'complete', 'solution'];
+            const lowerText = text.toLowerCase();
+            specificBenefitWords.forEach(word => {
+                if (lowerText.includes(word)) score += 2;
+            });
+            // Specific timeframes (e.g., "in 3 days", "by tomorrow")
+            if (/\d+\s(days|weeks|months|hours|minutes|seconds)/i.test(text) || /(by|in)\s(tomorrow|today|weekend)/i.test(text)) score += 3;
+
+            return Math.min(score, 10); // Cap at 10
+        }
+
+        /**
+         * Calculates score for Simplicity / Clarity.
+         * Flags passive voice, excessive jargon.
+         * @param {string} text - The input headline.
+         * @returns {number} - Score out of 10.
+         */
+        function getSimplicityClarityScore(text) {
+            const lowerText = text.toLowerCase();
+            let issues = 0;
+
+            const passiveVoiceIndicators = [
+                'is done by', 'was done by', 'are done by', 'were done by',
+                'has been', 'had been', 'will be', 'being', 'been'
+            ];
+            passiveVoiceIndicators.forEach(phrase => {
+                if (lowerText.includes(phrase)) issues++;
+            });
+
+            const jargonKeywords = ['synergy', 'leverage', 'paradigm', 'ecosystem', 'optimize', 'bandwidth', 'holistic', 'disrupt', 'pivot'];
+            jargonKeywords.forEach(keyword => {
+                if (lowerText.includes(keyword)) issues++;
+            });
+
+            // Simple check for very long words (proxy for complexity)
+            const words = text.split(/\s+/).filter(word => word.length > 0);
+            words.forEach(word => {
+                if (word.length > 10 && countSyllables(word) > 3) issues += 0.5;
+            });
+
+            // Score: 10 - (issues * penalty_per_issue)
+            return Math.max(0, 10 - (issues * 3)); // Adjust penalty as needed
+        }
+
+        /**
+         * Calculates score for Personalization.
+         * @param {string} text - The input headline.
+         * @returns {number} - Score out of 10.
+         */
+        function getPersonalizationScore(text) {
+            const lowerText = text.toLowerCase();
+            let count = 0;
+            PERSONALIZATION_WORDS.forEach(word => {
+                if (lowerText.includes(word)) {
+                    count++;
+                }
+            });
+            // Max 2 personalization words for full score
+            return Math.min(count / 2, 1) * 10;
+        }
+
+        /**
+         * Calculates score for Negative Framing / Fear.
+         * @param {string} text - The input headline.
+         * @returns {number} - Score out of 10.
+         */
+        function getNegativeFramingScore(text) {
+            const lowerText = text.toLowerCase();
+            let count = 0;
+            NEGATIVE_FRAMING_WORDS.forEach(word => {
+                if (lowerText.includes(word)) {
+                    count++;
+                }
+            });
+            // Max 2 negative words for a score of 10. Too many might be overkill.
+            return Math.min(count / 2, 1) * 10;
+        }
+
+        /**
+         * Calculates score for Keyword Relevance. (Placeholder)
+         * In a real app, this would involve comparing to user-defined keywords.
+         * For now, it returns a neutral score.
+         * @param {string} text - The input headline.
+         * @returns {number} - Score out of 10.
+         */
+        function getKeywordRelevanceScore(text) {
+            // Placeholder: In a real scenario, you'd compare 'text' against a list of target keywords.
+            // For now, we'll give a neutral score or a score based on a very generic keyword presence.
+            const genericKeywords = ['marketing', 'business', 'growth', 'digital', 'content', 'strategy'];
+            const lowerText = text.toLowerCase();
+            let foundCount = 0;
+            genericKeywords.forEach(kw => {
+                if (lowerText.includes(kw)) foundCount++;
+            });
+            return Math.min(foundCount / 2, 1) * 10; // Max 2 generic keywords for full score
+        }
+
+        /**
+         * Calculates score for High-Performing Format.
+         * @param {string} text - The input headline.
+         * @returns {number} - Score out of 10.
+         */
+        function getHighPerformingFormatScore(text) {
+            let score = 0;
+            for (const formatType in HIGH_PERFORMING_FORMATS) {
+                if (HIGH_PERFORMING_FORMATS[formatType].test(text)) {
+                    score = 10; // If any high-performing format is detected, give full score
+                    break;
+                }
+            }
+            return score;
+        }
+
+        /**
+         * Calculates an overall score for the headline based on weighted metrics.
+         * @param {object} metrics - Object containing all headline metrics.
+         * @returns {number} - The calculated overall score.
+         */
+        function calculateOverallScore(metrics) {
+            let score = 0;
+
+            // Weights:
+            // Numbers: 15%
+            // Power Words: 15%
+            // Curiosity: 15%
+            // Urgency: 10%
+            // Specificity: 10%
+            // Simplicity: 10%
+            // Personalization: 10%
+            // Negativity: 5%
+            // Keywords: 5%
+            // Format: 5%
+
+            score += (metrics.useOfNumbers / 10) * 15;
+            score += (metrics.powerWords / 10) * 15;
+            score += (metrics.curiosity / 10) * 15;
+            score += (metrics.urgency / 10) * 10;
+            score += (metrics.specificity / 10) * 10;
+            score += (metrics.simplicityClarity / 10) * 10;
+            score += (metrics.personalization / 10) * 10;
+            score += (metrics.negativeFraming / 10) * 5;
+            score += (metrics.keywordRelevance / 10) * 5;
+            score += (metrics.highPerformingFormat / 10) * 5;
+
+            return Math.round(Math.max(0, Math.min(score, 100))); // Cap score between 0-100
+        }
+
+        /**
+         * Creates an analysis item HTML element with a progress bar.
+         * @param {string} label - The label for the criterion.
+         * @param {string} tooltipText - Text for the tooltip.
+         * @param {number} score - The score out of 10.
+         * @param {string} valueText - The text to display next to the bar (e.g., "8/10").
+         * @returns {string} - HTML string for the analysis item.
+         */
+        function createAnalysisItemHtml(label, tooltipText, score, valueText) {
+            const percentage = score * 10; // Convert 0-10 score to 0-100 percentage
+            let barColor = 'var(--progress-red)';
+            if (percentage >= 75) {
+                barColor = 'var(--progress-green)';
+            } else if (percentage >= 50) {
+                barColor = 'var(--progress-yellow)';
+            }
+
+            return `
+                <div class="analysis-item">
+                    <span class="analysis-label tooltip">${label}
+                        <span class="tooltiptext">${tooltipText}</span>
+                    </span>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: ${percentage}%; background-color: ${barColor};">
+                            ${valueText}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Updates the analysis display for a given headline.
+         * @param {string} headlineId - The ID of the headline textarea ('headlineA' or 'headlineB').
+         */
+        function updateAnalysis(headlineId) {
+            const inputElement = document.getElementById(headlineId);
+            const text = inputElement.value;
+
+            const currentWordCount = getWordCount(text);
+            const currentCharCount = getCharCount(text);
+            const readability = getFleschKincaidGradeLevel(text);
+            const { sentiment, score: sentimentVal } = getSentiment(text);
+
+            // New 10 Criteria Scores (out of 10)
+            const useOfNumbers = getUseOfNumbersScore(text);
+            const powerWords = getPowerWordsScore(text);
+            const curiosity = getCuriosityScore(text);
+            const urgency = getUrgencyScore(text);
+            const specificity = getSpecificityScore(text);
+            const simplicityClarity = getSimplicityClarityScore(text);
+            const personalization = getPersonalizationScore(text);
+            const negativeFraming = getNegativeFramingScore(text);
+            const keywordRelevance = getKeywordRelevanceScore(text);
+            const highPerformingFormat = getHighPerformingFormatScore(text);
+
+            const metrics = {
+                wordCount: currentWordCount,
+                charCount: currentCharCount,
+                readability: parseFloat(readability) || 0, // Flesch-Kincaid grade level
+                sentiment: sentiment,
+                sentimentScore: sentimentVal, // Raw sentiment score for internal calculation
+
+                // New 10 criteria scores (0-10)
+                useOfNumbers: useOfNumbers,
+                powerWords: powerWords,
+                curiosity: curiosity,
+                urgency: urgency,
+                specificity: specificity,
+                simplicityClarity: simplicityClarity,
+                personalization: personalization,
+                negativeFraming: negativeFraming,
+                keywordRelevance: keywordRelevance,
+                highPerformingFormat: highPerformingFormat
+            };
+
+            const overallScore = calculateOverallScore(metrics);
+
+            // Update DOM elements based on headlineId
+            let analysisSectionEl, totalScoreBadgeEl, cardEl;
+            if (headlineId === 'headlineA') {
+                analysisSectionEl = analysisSectionA;
+                totalScoreBadgeEl = totalScoreBadgeA;
+                cardEl = headlineACard;
+            } else {
+                analysisSectionEl = analysisSectionB;
+                totalScoreBadgeEl = totalScoreBadgeB;
+                cardEl = headlineBCard;
+            }
+
+            // Clear existing analysis items
+            analysisSectionEl.innerHTML = '';
+
+            // Add standard metrics
+            analysisSectionEl.innerHTML += `
+                <div class="analysis-item">
+                    <span class="analysis-label">Word Count:</span>
+                    <span class="analysis-value">${currentWordCount}</span>
+                </div>
+                <div class="analysis-item">
+                    <span class="analysis-label">Character Count:</span>
+                    <span class="analysis-value">${currentCharCount}</span>
+                </div>
+                <div class="analysis-item">
+                    <span class="analysis-label tooltip">Reading Grade Level:
+                        <span class="tooltiptext">Flesch-Kincaid Grade Level: Lower score means easier to read.</span>
+                    </span>
+                    <span class="analysis-value">${readability}</span>
+                </div>
+                <div class="analysis-item">
+                    <span class="analysis-label tooltip">Sentiment:
+                        <span class="tooltiptext">Overall emotional tone of the headline.</span>
+                    </span>
+                    <span class="analysis-value ${sentiment === 'Positive' ? 'sentiment-positive' : (sentiment === 'Negative' ? 'sentiment-negative' : 'sentiment-neutral')}">${sentiment}</span>
+                </div>
+            `;
+
+            // Add 10 criteria with progress bars
+            analysisSectionEl.innerHTML += createAnalysisItemHtml('Use of Numbers', 'Presence of digits (e.g., "7 Ways", "3 Tips").', useOfNumbers, `${useOfNumbers.toFixed(0)}/10`);
+            analysisSectionEl.innerHTML += createAnalysisItemHtml('Power Words', 'Words that evoke strong emotional responses or imply benefit/urgency.', powerWords, `${powerWords.toFixed(0)}/10`);
+            analysisSectionEl.innerHTML += createAnalysisItemHtml('Curiosity / Open Loops', 'Phrases designed to make the reader want to know more.', curiosity, `${curiosity.toFixed(0)}/10`);
+            analysisSectionEl.innerHTML += createAnalysisItemHtml('Urgency / Scarcity', 'Words that create a sense of immediate need or limited availability.', urgency, `${urgency.toFixed(0)}/10`);
+            analysisSectionEl.innerHTML += createAnalysisItemHtml('Specificity', 'Clear result, benefit, or outcome mentioned.', specificity, `${specificity.toFixed(0)}/10`);
+            analysisSectionEl.innerHTML += createAnalysisItemHtml('Simplicity / Clarity', 'Plain language, absence of jargon or overly complex phrasing.', simplicityClarity, `${simplicityClarity.toFixed(0)}/10`);
+            analysisSectionEl.innerHTML += createAnalysisItemHtml('Personalization', 'Use of "you", "your" or addressing user pain points directly.', personalization, `${personalization.toFixed(0)}/10`);
+            analysisSectionEl.innerHTML += createAnalysisItemHtml('Negative Framing / Fear', 'Highlights problems or consequences the reader wants to avoid.', negativeFraming, `${negativeFraming.toFixed(0)}/10`);
+            analysisSectionEl.innerHTML += createAnalysisItemHtml('Keyword Relevance', 'Basic match to general marketing/search terms. (Placeholder for specific keywords).', keywordRelevance, `${keywordRelevance.toFixed(0)}/10`);
+            analysisSectionEl.innerHTML += createAnalysisItemHtml('High-Performing Format', 'Detects common effective headline structures (e.g., Listicle, How-To, Question).', highPerformingFormat, `${highPerformingFormat.toFixed(0)}/10`);
+
+            // Update the overall score badge
+            totalScoreBadgeEl.textContent = `${overallScore}/100`;
+
+            // Store all metrics on the card element for easy access later
+            cardEl.dataset.metrics = JSON.stringify(metrics);
+            cardEl.dataset.overallScore = overallScore;
+
+            // Save to localStorage
+            localStorage.setItem(headlineId, text);
+        }
+
+        /**
+         * Displays a temporary message box.
+         * @param {string} message - The message to display.
+         * @param {number} duration - How long to display the message in milliseconds.
+         */
+        function showMessageBox(message, duration = 2000) {
+            messageBox.textContent = message;
+            messageBox.classList.add('show');
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, duration);
+        }
+
+        // --- Gemini API Integration ---
+
+        /**
+         * Calls the Gemini API to get headline suggestions.
+         * @param {string} headline - The headline to improve.
+         * @returns {Promise<Array<string>>} - A promise resolving to an array of suggested headlines.
+         */
+        async function getGeminiSuggestions(headline) {
+            aiLoadingIndicator.style.display = 'block'; // Show loading spinner
+            aiSuggestionsList.innerHTML = ''; // Clear previous suggestions
+
+            // Enhanced prompt to guide AI towards higher quality suggestions based on criteria
+            const prompt = `Rewrite the following headline to maximize click-through potential. Generate 3 distinct, highly effective versions. Each suggestion should aim to score high on these criteria:
+            - Use of Numbers (e.g., "7 Ways")
+            - Power Words (e.g., "ultimate", "proven", "secrets")
+            - Curiosity / Open Loops (e.g., "You won't believe...", "The secret to...")
+            - Urgency or Scarcity (e.g., "Now", "Limited Time")
+            - Specificity (clear benefit/outcome)
+            - Simplicity / Clarity (plain language, no jargon)
+            - Personalization (using "you" or addressing user pain points)
+            - Negative Framing / Fear (e.g., "Mistakes to Avoid")
+            - Keyword Relevance (assume general marketing/content keywords)
+            - High-Performing Format (e.g., Listicle, How-To, Question)
+
+            Return the 3 improved versions as a JSON array of strings. Do NOT include any other text or formatting outside the JSON array.
+            Headline to improve: "${headline}"`;
+
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+
+            const payload = {
+                contents: chatHistory,
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "ARRAY",
+                        items: { "type": "STRING" }
+                    }
+                }
+            };
+            const apiKey = ""; // Canvas will provide this at runtime
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API error: ${response.status} - ${errorText}`);
+                }
+
+                const result = await response.json();
+                aiLoadingIndicator.style.display = 'none'; // Hide loading spinner
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const jsonString = result.candidates[0].content.parts[0].text;
+                    try {
+                        const suggestions = JSON.parse(jsonString);
+                        if (Array.isArray(suggestions)) {
+                            return suggestions;
+                        } else {
+                            console.error("Gemini response was not an array:", suggestions);
+                            showMessageBox("AI error: Unexpected response format.");
+                            return ["Could not generate suggestions. Try again."];
+                        }
+                    } catch (parseError) {
+                        console.error("Failed to parse Gemini response JSON:", parseError, jsonString);
+                        showMessageBox("AI error: Failed to parse suggestions.");
+                        return ["Could not generate suggestions. Try again."];
+                    }
+                } else {
+                    console.error("Gemini response structure unexpected or empty:", result);
+                    showMessageBox("AI error: No suggestions generated.");
+                    return ["Could not generate suggestions. Try again."];
+                }
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                aiLoadingIndicator.style.display = 'none'; // Hide loading spinner
+                showMessageBox("Error connecting to AI. Please try again.");
+                return ["Failed to get AI suggestions. Check console for details."];
+            }
+        }
+
+        /**
+         * Displays AI suggestions in a modal.
+         * @param {Array<string>} suggestions - An array of headline suggestions.
+         * @param {string} targetHeadlineId - The ID of the original headline input to copy back to.
+         */
+        function displayAISuggestions(suggestions, targetHeadlineId) {
+            aiSuggestionsList.innerHTML = ''; // Clear previous suggestions
+            aiLoadingIndicator.style.display = 'none'; // Ensure loading spinner is hidden
+
+            if (suggestions.length === 0) {
+                aiSuggestionsList.innerHTML = '<p style="text-align: center;">No suggestions generated. Try a different headline.</p>';
+                return;
+            }
+
+            suggestions.forEach((suggestion, index) => {
+                const suggestionItem = document.createElement('div');
+                suggestionItem.classList.add('ai-suggestion-item');
+                suggestionItem.innerHTML = `
+                    <div class="ai-suggestion-text">${suggestion}</div>
+                    <div class="ai-suggestion-actions">
+                        <button class="copy-suggestion-btn" data-suggestion-text="${suggestion}">Copy</button>
+                        <button class="use-suggestion-btn" data-suggestion-text="${suggestion}" data-target-id="${targetHeadlineId}">Use This</button>
+                    </div>
+                `;
+                aiSuggestionsList.appendChild(suggestionItem);
+            });
+
+            // Add event listeners for new buttons in the modal
+            aiSuggestionsList.querySelectorAll('.copy-suggestion-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const text = event.target.dataset.suggestionText;
+                    copyTextToClipboard(text);
+                    showMessageBox('Suggestion copied!');
+                });
+            });
+
+            aiSuggestionsList.querySelectorAll('.use-suggestion-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const text = event.target.dataset.suggestionText;
+                    const targetId = event.target.dataset.targetId;
+                    document.getElementById(targetId).value = text;
+                    updateAnalysis(targetId); // Re-analyze the headline after update
+                    aiSuggestionsModal.classList.remove('show'); // Close modal
+                    showMessageBox('Headline updated!');
+                });
+            });
+
+            aiSuggestionsModal.classList.add('show');
+        }
+
+        // --- Event Handlers ---
+
+        /**
+         * Handles the "Which one wins?" button click.
+         * Compares the overall scores and highlights the winning headline.
+         */
+        function handleWhichOneWins() {
+            const scoreAVal = parseFloat(headlineACard.dataset.overallScore || 0);
+            const scoreBVal = parseFloat(headlineBCard.dataset.overallScore || 0);
+
+            // Remove previous winner highlights and insight
+            headlineACard.classList.remove('winner');
+            headlineBCard.classList.remove('winner');
+            winnerInsight.style.display = 'none';
+
+            let insightText = '';
+            if (scoreAVal > scoreBVal) {
+                headlineACard.classList.add('winner');
+                insightText = 'Headline A wins! It scored higher due to its optimized metrics.';
+            } else if (scoreBVal > scoreAVal) {
+                headlineBCard.classList.add('winner');
+                insightText = 'Headline B wins! It scored higher due to its optimized metrics.';
+            } else {
+                insightText = 'It\'s a tie! Both headlines have similar overall scores.';
+            }
+
+            // Provide more detailed insight
+            if (scoreAVal !== scoreBVal) {
+                const metricsA = JSON.parse(headlineACard.dataset.metrics);
+                const metricsB = JSON.parse(headlineBCard.dataset.metrics);
+                const winnerMetrics = scoreAVal > scoreBVal ? metricsA : metricsB;
+                const loserMetrics = scoreAVal > scoreBVal ? metricsB : metricsA;
+
+                let detailedInsight = insightText + ' Specifically, the winning headline showed: ';
+                const diffs = [];
+
+                // Compare new 10 criteria
+                if (winnerMetrics.useOfNumbers > loserMetrics.useOfNumbers) diffs.push('better use of numbers');
+                if (winnerMetrics.powerWords > loserMetrics.powerWords) diffs.push('more power words');
+                if (winnerMetrics.curiosity > loserMetrics.curiosity) diffs.push('stronger curiosity triggers');
+                if (winnerMetrics.urgency > loserMetrics.urgency) diffs.push('more urgency/scarcity');
+                if (winnerMetrics.specificity > loserMetrics.specificity) diffs.push('greater specificity');
+                if (winnerMetrics.simplicityClarity > loserMetrics.simplicityClarity) diffs.push('improved simplicity/clarity');
+                if (winnerMetrics.personalization > loserMetrics.personalization) diffs.push('better personalization');
+                if (winnerMetrics.negativeFraming > loserMetrics.negativeFraming) diffs.push('effective negative framing');
+                if (winnerMetrics.keywordRelevance > loserMetrics.keywordRelevance) diffs.push('higher keyword relevance');
+                if (winnerMetrics.highPerformingFormat > loserMetrics.highPerformingFormat) diffs.push('a high-performing format');
+
+                if (diffs.length > 0) {
+                    detailedInsight += diffs.join(', ') + '.';
+                } else {
+                    detailedInsight = insightText + ' The differences in specific metrics were subtle.';
+                }
+                winnerInsight.textContent = detailedInsight;
+            } else {
+                winnerInsight.textContent = insightText;
+            }
+            winnerInsight.style.display = 'block';
+        }
+
+        /**
+         * Handles copying headline text to clipboard.
+         * @param {Event} event - The click event.
+         */
+        function handleCopyClick(event) {
+            const headlineId = event.target.dataset.headlineId;
+            const headlineInput = document.getElementById(headlineId);
+            copyTextToClipboard(headlineInput.value);
+            showMessageBox(`"${headlineInput.value.substring(0, 30)}..." copied!`);
+        }
+
+        /**
+         * Generic function to copy text to clipboard.
+         * @param {string} text - The text to copy.
+         */
+        function copyTextToClipboard(text) {
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = text;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            tempTextArea.setSelectionRange(0, 99999); // For mobile devices
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                console.error('Failed to copy text:', err);
+            }
+            document.body.removeChild(tempTextArea);
+        }
+
+        /**
+         * Handles the "Improve with AI" button click.
+         * @param {Event} event - The click event.
+         */
+        async function handleAIBtnClick(event) {
+            const headlineId = event.target.dataset.headlineId;
+            const headlineInput = document.getElementById(headlineId);
+            const currentHeadline = headlineInput.value.trim();
+
+            if (!currentHeadline) {
+                showMessageBox("Please enter a headline before asking AI for suggestions.");
+                return;
+            }
+
+            aiSuggestionsModal.classList.add('show');
+            aiSuggestionsList.innerHTML = ''; // Clear previous suggestions
+            aiLoadingIndicator.style.display = 'block'; // Show loading spinner
+
+            const suggestions = await getGeminiSuggestions(currentHeadline);
+            displayAISuggestions(suggestions, headlineId);
+        }
+
+        /**
+         * Handles exporting all analysis results to clipboard as CSV.
+         */
+        function handleExportResults() {
+            const headlineA = headlineAInput.value;
+            const headlineB = headlineBInput.value;
+
+            const metricsA = JSON.parse(headlineACard.dataset.metrics || '{}');
+            const metricsB = JSON.parse(headlineBCard.dataset.metrics || '{}');
+
+            const winnerScore = parseFloat(headlineACard.dataset.overallScore || 0);
+            const loserScore = parseFloat(headlineBCard.dataset.overallScore || 0);
+            const winnerName = winnerScore > loserScore ? 'Headline A' : (winnerScore < loserScore ? 'Headline B' : 'Tie');
+            const winnerInsightText = winnerInsight.textContent || 'No comparison performed yet.';
+
+            let csvContent = "Metric,Headline A,Headline B\n";
+            csvContent += `Headline Text,"${headlineA.replace(/"/g, '""')}","${headlineB.replace(/"/g, '""')}"\n`;
+            csvContent += `Overall Score,${headlineACard.dataset.overallScore || 0},${headlineBCard.dataset.overallScore || 0}\n`;
+            csvContent += `Winner,${winnerName},\n`;
+            csvContent += `Winner Insight,"${winnerInsightText.replace(/"/g, '""')}",\n`;
+            csvContent += `\nDetailed Metrics:\n`;
+
+            const metricLabels = {
+                wordCount: 'Word Count',
+                charCount: 'Character Count',
+                readability: 'Reading Grade Level',
+                sentiment: 'Sentiment',
+                useOfNumbers: 'Use of Numbers (0-10)',
+                powerWords: 'Power Words (0-10)',
+                curiosity: 'Curiosity / Open Loops (0-10)',
+                urgency: 'Urgency or Scarcity (0-10)',
+                specificity: 'Specificity (0-10)',
+                simplicityClarity: 'Simplicity / Clarity (0-10)',
+                personalization: 'Personalization (0-10)',
+                negativeFraming: 'Negative Framing / Fear (0-10)',
+                keywordRelevance: 'Keyword Relevance (0-10)',
+                highPerformingFormat: 'High-Performing Format (0-10)'
+            };
+
+            for (const key in metricLabels) {
+                if (metricsA.hasOwnProperty(key) && metricsB.hasOwnProperty(key)) {
+                    let valA = metricsA[key];
+                    let valB = metricsB[key];
+
+                    // Format numbers for scores
+                    if (typeof valA === 'number' && key !== 'readability' && key !== 'sentimentScore') valA = valA.toFixed(1);
+                    if (typeof valB === 'number' && key !== 'readability' && key !== 'sentimentScore') valB = valB.toFixed(1);
+
+                    csvContent += `${metricLabels[key]},"${valA}","${valB}"\n`;
+                }
+            }
+
+            copyTextToClipboard(csvContent);
+            showMessageBox('All results copied to clipboard as CSV!');
+        }
+
+
+        /**
+         * Toggles between light and dark mode.
+         */
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
+        }
+
+        // --- Initialization on Page Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load saved headlines from localStorage
+            const savedHeadlineA = localStorage.getItem('headlineA');
+            const savedHeadlineB = localStorage.getItem('headlineB');
+
+            if (savedHeadlineA) {
+                headlineAInput.value = savedHeadlineA;
+            }
+            if (savedHeadlineB) {
+                headlineBInput.value = savedHeadlineB;
+            }
+
+            // Perform initial analysis for loaded content
+            updateAnalysis('headlineA');
+            updateAnalysis('headlineB');
+
+            // Set dark mode based on localStorage preference
+            const darkModePreference = localStorage.getItem('darkMode');
+            if (darkModePreference === 'enabled') {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.checked = true;
+            }
+
+            // --- Event Listeners ---
+            headlineAInput.addEventListener('input', () => updateAnalysis('headlineA'));
+            headlineBInput.addEventListener('input', () => updateAnalysis('headlineB'));
+            whichOneWinsBtn.addEventListener('click', handleWhichOneWins);
+            exportResultsBtn.addEventListener('click', handleExportResults);
+            darkModeToggle.addEventListener('change', toggleDarkMode);
+
+            copyButtons.forEach(button => {
+                button.addEventListener('click', handleCopyClick);
+            });
+
+            aiButtons.forEach(button => {
+                button.addEventListener('click', handleAIBtnClick);
+            });
+
+            // Close modal when close button is clicked
+            closeButton.addEventListener('click', () => {
+                aiSuggestionsModal.classList.remove('show');
+            });
+
+            // Close modal when clicking outside of the modal content
+            window.addEventListener('click', (event) => {
+                if (event.target === aiSuggestionsModal) {
+                    aiSuggestionsModal.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
